@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <h1>Электронные документы</h1>
+
+    <form method="POST" action="/create_document" enctype="multipart/form-data">
+        файл шаблона
+        <input type="text" name="template_name"/>
+        json данные
+        <textarea name="json_data">{{ json_data }}</textarea>
+        pdf
+        <input type="checkbox" name="pdf_type"/>
+      <p><input type="submit" value="Отправить"></p>
+    </form>
+________________________________________файл шаблона_______________________________________
+    <br/>
+    <br/>
+    <form method="POST" action="/put_template" enctype="multipart/form-data">
+    <input type="file" name="doc_file" accept=".odt">
+      <p><input type="submit" value="Отправить"></p>
+    </form>
+</body>
+</html>

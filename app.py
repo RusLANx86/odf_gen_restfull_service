@@ -1,5 +1,5 @@
 import os, json
-from flask import Flask, request, redirect, send_file, render_template
+from flask import Flask, request, jsonify, send_file, render_template
 from flasgger import Swagger
 
 from odf_gen import fill_template
@@ -188,7 +188,7 @@ def put_template():
         in_filename = 'templates/temp_odt/' + file.filename
         file.save(in_filename)
 
-    return redirect('/')
+    return jsonify({"msg": "upload template complete"})
 
 
 if __name__ == '__main__':

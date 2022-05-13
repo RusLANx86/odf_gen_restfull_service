@@ -1,6 +1,8 @@
-import os, json
-from flask import Flask, request, jsonify, send_file, render_template
+import json
+import os
+
 from flasgger import Swagger
+from flask import Flask, request, jsonify, send_file, render_template
 
 from odf_gen import fill_template
 
@@ -107,16 +109,7 @@ def create_document():
         required: true
         schema:
           type: string
-          example: '{
-            "table1": {
-                "type": "Table",
-                "data": [
-                    [
-                        "первая ячейка", "вторая ячейка", "третья ячейка"
-                    ]
-                ]
-            }
-        }'
+          example: '{ "table1": { "type": "Table", "data": [ [ {"odf_elems":[{"type": "String", "data": "Тут будет лист:"}, {"type": "List", "data": [{"text": "Пункт 1"}, {"text": "Пункт 2", "data": [{"text": "Подпункт 2.1"}, {"text": "Подпункт 2.2"}]}, {"text": "Подпункт 3"}]}]}, "вторая ячейка", "третья ячейка", {"label": "Длинная ячейка", "colspan": 10} ] ] } }'
     produces:
       [application/pdf]
     responses:
@@ -148,15 +141,29 @@ def create_document():
 
         open_doc = fill_template(os.path.join(ROOT_PATH, temp_file), data)
 
-        open_doc.save(outputfile=result_file)
+        try:
+            open_doc.save(outputfile=result_file)
+        except Exception as ex:
+            print('сохранено с повреждениями')
 
-        command1 = f'libreoffice --headless --convert-to pdf {result_file}'
+        # command1 = f'libreoffice --headless --convert-to pdf {result_file}'
+        command1 = f'unoconv -f pdf {result_file}'
         command2 = f'mv {pdf_file_name} doc_files/'
-        os.system(command1)
+
+        import subprocess
+        try:
+            subprocess.check_call(['/usr/bin/python3', '/usr/bin/unoconv', '-f', 'pdf', result_file])
+        except subprocess.CalledProcessError as e:
+            print('SubProccess Error', e)
+
+        # os.system(command1)
         os.system(command2)
 
         if pdf_type:
-            return send_file('doc_files/' + pdf_file_name, as_attachment=False)
+            try:
+                return send_file('doc_files/' + pdf_file_name, as_attachment=False)
+            except Exception as ex:
+                return jsonify({"msg": f"нет файла {pdf_file_name}"})
         else:
             return send_file(result_file, as_attachment=False)
     else:

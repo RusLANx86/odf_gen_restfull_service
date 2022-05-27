@@ -1,0 +1,4 @@
+flasgger
+flask-marshmallow
+alembic
+psycopg2-binary
